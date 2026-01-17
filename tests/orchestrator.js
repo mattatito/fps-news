@@ -36,8 +36,8 @@ async function createUser(userObject) {
   const newUser = await user.create({
     username:
       userObject?.username || faker.internet.username().replace(/[_.-]/g, ""),
-    email: userObject.email || faker.internet.email(),
-    password: userObject.password || "validpassword",
+    email: userObject?.email || faker.internet.email(),
+    password: userObject?.password || "validpassword",
   });
   return newUser;
 }
