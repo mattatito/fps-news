@@ -1,6 +1,5 @@
 import { createRouter } from "next-connect";
 import controller from "infra/controller";
-import { UnauthorizedError } from "infra/errors";
 import authentication from "models/authentication";
 
 const router = createRouter();
