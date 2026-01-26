@@ -1,21 +1,53 @@
-import { UnauthorizedError } from "infra/errors";
+import { NotFoundError, UnauthorizedError } from "infra/errors";
 import userModel from "models/user";
-import passwordModel from "models/password";
+import password from "models/password";
 
-async function getAuthenticatedUser(email, password) {
-  const correctPasswordMatch = await passwordModel.compare(
-    password,
-    storedUser.password,
-  );
-  const storedUser = await userModel.findOneByEmail(email);
-  if (!correctPasswordMatch) {
-    throw new UnauthorizedError({
-      message: "Senha não confere.",
-      action: "Verifique se este dado está correto.",
-    });
+async function getAuthenticatedUser(providedEmail, providedPassword) {
+  try {
+    const storedUser = await findUserByEmail(providedEmail);
+    await validatePassword(providedPassword, storedUser.password);
+
+    return storedUser;
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      throw new UnauthorizedError({
+        message: "Dados de autenticação não conferem.",
+        action: "Verifique se os dados enviados estão corretos.",
+      });
+    }
+
+    throw error;
   }
 
-  return storedUser;
+  async function findUserByEmail(providedEmail) {
+    try {
+      const storedUser = await userModel.findOneByEmail(providedEmail);
+      return storedUser;
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw new UnauthorizedError({
+          message: "Email não confere.",
+          action: "Verifique se este dado está correto.",
+        });
+      }
+
+      throw error;
+    }
+  }
+
+  async function validatePassword(providedPassword, userPassword) {
+    const correctPasswordMatch = await password.compare(
+      providedPassword,
+      userPassword,
+    );
+
+    if (!correctPasswordMatch) {
+      throw new UnauthorizedError({
+        message: "Senha não confere.",
+        action: "Verifique se este dado está correto.",
+      });
+    }
+  }
 }
 
 const authentication = {

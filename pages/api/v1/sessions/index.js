@@ -12,19 +12,10 @@ export default router.handler(controller.errorHandlers);
 async function postHandler(request, response) {
   const userInputValues = request.body;
 
-  try {
-    const validatedUser = await authentication.getAuthenticatedUser(
-      userInputValues.email,
-      userInputValues.password,
-    );
-
-    console.log(validatedUser);
-  } catch (error) {
-    throw new UnauthorizedError({
-      message: "Dados de autenticação não conferem.",
-      action: "Verifique se os dados enviados estão corretos.",
-    });
-  }
+  await authentication.getAuthenticatedUser(
+    userInputValues.email,
+    userInputValues.password,
+  );
 
   return response.status(401).json({});
 }
