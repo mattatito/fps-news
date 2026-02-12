@@ -78,8 +78,11 @@ async function deleteAllEmails() {
 async function getLastEmail() {
   const emailListReponse = await fetch(`${emailHttpUrl}/messages`);
   const emailListBody = await emailListReponse.json();
-
   const lastEmailItem = emailListBody.pop();
+
+  if (!lastEmailItem) {
+    return null;
+  }
 
   const emaiLTextResponse = await fetch(
     `${emailHttpUrl}/messages/${lastEmailItem.id}.plain`,

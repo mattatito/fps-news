@@ -39,7 +39,14 @@ describe("Use case: Registration flow (All successful)", () => {
     });
   });
 
-  test("Receive activation email", async () => {});
+  test("Receive activation email", async () => {
+    const lastEmail = await orchestrator.getLastEmail();
+
+    expect(lastEmail.sender).toBe("<contato@fpsnews.dev>");
+    expect(lastEmail.recipients[0]).toBe("<registration.flow@curso.dev>");
+    expect(lastEmail.subject).toBe("Ative seu cadastro no FpsNews!");
+    expect(lastEmail.text).toContain("RegistrationFlow");
+  });
 
   test("Activate account", async () => {});
 
