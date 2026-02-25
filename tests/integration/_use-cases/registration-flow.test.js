@@ -1,3 +1,4 @@
+import webserver from "infra/webserver";
 import activation from "models/activation";
 import orchestrator from "tests/orchestrator";
 
@@ -44,15 +45,22 @@ describe("Use case: Registration flow (All successful)", () => {
 
   test("Receive activation email", async () => {
     const lastEmail = await orchestrator.getLastEmail();
-    const activationToken = await activation.findOneByUserId(
-      createdUserResponseBody.id,
-    );
+    const activationToken = orchestrator.extractUUID(lastEmail.text);
+    const activationTokenObject =
+      await activation.findOneValidById(activationToken);
 
     expect(lastEmail.sender).toBe("<contato@fpsnews.dev>");
     expect(lastEmail.recipients[0]).toBe("<registration.flow@curso.dev>");
     expect(lastEmail.subject).toBe("Ative seu cadastro no FpsNews!");
     expect(lastEmail.text).toContain("RegistrationFlow");
-    expect(lastEmail.text).toContain(activationToken.id);
+    expect(lastEmail.text).toContain(activationTokenObject.id);
+
+    expect(lastEmail.text).toContain(
+      `${webserver.origin}/cadastro/ativar/${activationTokenObject.id}`,
+    );
+
+    expect(activationTokenObject.user_id).toBe(createdUserResponseBody.id);
+    expect(activationTokenObject.used_at).toBe(null);
   });
 
   test("Activate account", async () => {});
