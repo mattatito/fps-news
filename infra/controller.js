@@ -7,6 +7,7 @@ import {
   ValidationError,
   ForbiddenError,
 } from "infra/errors";
+import authorization from "models/authorization";
 import session from "models/session";
 import user from "models/user";
 
@@ -91,11 +92,10 @@ async function injectAnonymousUser(request) {
 }
 
 function canRequest(feature) {
-  console.log(feature);
   return function canRequestMiddleware(request, _response, next) {
     const userTryingToRequest = request.context.user;
 
-    if (userTryingToRequest.features.includes(feature)) {
+    if (authorization.can(userTryingToRequest, feature)) {
       return next();
     }
 
