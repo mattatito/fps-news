@@ -96,7 +96,7 @@ async function getLastEmail() {
 }
 
 async function activateUser(user) {
-  await activation.activateUserByUserId(user.id);
+  return await activation.activateUserByUserId(user.id);
 }
 
 function extractUUID(email) {
